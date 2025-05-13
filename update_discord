@@ -3,84 +3,113 @@
 
 set -e
 
-printf '\n''    ____  _                          __   __  __          __      __     \n''   / __ \(_)_____________  _________/ /  / / / /___  ____/ /___ _/ /____ \n''  / / / / / ___/ ___/ __ \/ ___/ __  /  / / / / __ \/ __  / __ `/ __/ _ \ \n'' / /_/ / (__  ) /__/ /_/ / /  / /_/ /  / /_/ / /_/ / /_/ / /_/ / /_/  __/\n''/_____/_/____/\___/\____/_/   \__,_/   \____/ .___/\__,_/\__,_/\__/\___/ \n''                                           /_/                           \n'
-printf "by YetAnotherMechanicusEnjoyer\n\n"
+printf '\n''\e[94m\e[1m    ____  _                          __   __  __          __      __     \n''   / __ \(_)_____________  _________/ /  / / / /___  ____/ /___ _/ /____ \n''  / / / / / ___/ ___/ __ \/ ___/ __  /  / / / / __ \/ __  / __ `/ __/ _ \ \n'' / /_/ / (__  ) /__/ /_/ / /  / /_/ /  / /_/ / /_/ / /_/ / /_/ / /_/  __/\n''/_____/_/____/\___/\____/_/   \__,_/   \____/ .___/\__,_/\__,_/\__/\___/ \n''                                           /_/                           \n'
+printf "\e[90mby \e[92m\e[4mYetAnotherMechanicusEnjoyer\n\n\e[0m\e[1m"
 
-if [ "$EUID" -ne 0 ]; then
-  echo "  [✕] ERROR => Script must be run as root."
-  exit 1
-fi
+echo -e "\e[95m[Checking] => Dependencies :"
 
-echo "  [Checking] => Dependencies :"
-printf "    [Dependency] => Wget..."
+printf "\e[96m  [Dependency] => Wget..."
 if command -v wget >/dev/null 2>&1; then
-  printf "\n    [✓] SUCCESS => Already installed.\n"
+  printf "\n\e[92m  [✓] SUCCESS => Already installed.\n"
 else
-  printf "\n    [✕] ERROR => Please install 'wget' to proceed.\n"
+  echo -e "\e[91m  [✕] ERROR => 'wget' is missing. Can't install dependencies."
   exit 1
 fi
 
-printf "   [Dependency] => Gum..."
+printf "\e[96m  [Dependency] => Gum..."
 gum_package="./dependencies/gum"
 
 if command -v gum >/dev/null 2>&1; then
-  printf "\n    [✓] SUCCESS => Already installed.\n"
+  printf "\n\e[92m  [✓] SUCCESS => Already installed.\n"
 else
-  printf "\n     [Installling] => Gum package\n"
+  printf "\n\e[95m   [Installling] => Gum package\n"
   if [ -f "$gum_package" ]; then
-    sh $gum_package
-    printf "\n     [✓] SUCCESS"
+    sudo sh $gum_package
+    printf "\n\e[92m   [✓] SUCCESS => Gum package installed.\n"
   else
-    printf "     [✕] ERROR => %s is missing. Can't install dependency. Aborting...\n" "$gum_package"
+    echo -e "\e[91m   [✕] ERROR => $gum_package is missing. Can't install dependency."
     exit 1
   fi
 fi
-printf "  [✓] SUCCESS => All dependencies are installed.\n"
+printf "\e[92m[✓] SUCCESS => All dependencies are installed.\n\n"
 
-printf "~~ Please select a format\n\n"
-format=$(gum choose "tar.gz" "deb" "Exit")
+format=$(gum choose "tar.gz" "deb" "uninstall" "quit")
 
+echo -e "\e[1m\e[95m> $format\n"
 if [[ $format == "tar.gz" ]]; then
-  printf '  [Downloading] => Discord latest version :\n   [Platform] => Linux\n   [Format] => tar.gz\n'
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR"
+
+  printf '\e[95m[Downloading] => Discord latest version :\n\e[96m [Platform] => Linux\n [Format] => tar.gz\n'
 
   downloadURL="https://discord.com/api/download?platform=linux&format=tar.gz"
-  updatePath="/tmp/discord.tar.gz"
+  updatePath="discord.tar.gz"
 
   wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
 
+  echo -e "\e[92m[✓] SUCCESS => Discord downloaded."
   if [ -f "$updatePath" ]; then
     installPath="/opt/discord"
 
-    if [ -f "$installPath" ]; then
-      rm -rf "$installPath"
+    if [ -d "$installPath" ]; then
+      echo -e "\e[91m[Deleting] => Old $installPath"
+      sudo rm -rf "$installPath"
     fi
 
-    echo "  [Extracting] $updatePath => $installPath"
-    tar -xf "$updatePath" -C "$installPath" --strip-components=1
+    sudo mkdir -p "$installPath"
+    echo -e "\e[95m[Extracting] $updatePath => $installPath"
+    sudo tar -xf "$updatePath" -C "$installPath" --strip-components=1
 
-    echo "  [✓] SUCCESS"
+    echo -e "\e[92m[✓] SUCCESS => $updatePath extracted into $installPath."
   else
-    echo "  [✕] ERROR => Couldn't download Discord."
+    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api."
+    cd -
+    rm -rf "$TMPDIR"
+    gum spin --spinner minidot --title "Aborting..." -- sleep 2
     exit 1
   fi
+  cd - >/dev/null
+  rm -rf "$TMPDIR"
+  gum spin --spinner minidot --title "Discord is now updated !" -- sleep 3
 elif [[ $format == "deb" ]]; then
-  printf '  [Downloading] => Discord latest version :\n   [Platform] => Linux\n   [Format] => deb\n'
+  printf '\e[95m[Downloading] => Discord latest version :\n \e[96m[Platform] => Linux\n [Format] => deb\n'
 
   downloadURL="https://discord.com/api/download?platform=linux&format=deb"
-  updatePath="/tmp/discord.deb"
+  updatePath="discord.deb"
 
   wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
 
+  echo -e "\e[92m[✓] SUCCESS => Discord downloaded."
   if [ -f "$updatePath" ]; then
-    echo "  [Installing] $updatePath package & its dependencies."
-    apt install "$updatePath"
-    echo "  [✓] SUCCESS"
+    echo -e "\e[95m[Installing] $updatePath package & its dependencies."
+
+    if command -v apt >/dev/null 2>&1; then
+      printf ""
+    else
+      echo -e "\e[1m\e[91m[✕] ERROR => 'apt' is not installed. Can't install with '.deb'."
+      cd - >/dev/null
+      rm -rf "$TMPDIR"
+      gum spin --spinner minidot --title "Aborting..." -- sleep 2
+      exit 1
+    fi
+
+    sudo apt install "$updatePath"
+    echo -e "\e[92m[✓] SUCCESS => Disocrd package installed."
   else
-    echo "  [✕] ERROR => Couldn't download Discord from api."
+    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api."
+    cd - >/dev/null
+    rm -rf "$TMPDIR"
+    gum spin --spinner minidot --title "Aborting..." -- sleep 2
     exit 1
   fi
-  gum spin --spinner dot --title "Discord is now updated !" -- sleep 3
+  cd - >/dev/null
+  rm -rf "$TMPDIR"
+  gum spin --spinner jump --title "Discord is now updated !" -- sleep 2
+elif [[ $format == "uninstall" ]]; then
+  gum confirm && (echo -e "\e[91m[Deleting] => /opt/discord" && sudo rm -rf "/opt/discord") || gum spin --spinner dot --title "Aborting..." -- sleep 2
+  gum spin --spinner jump --title "Discord is now uninstalled !" -- sleep 2
+  exit
 else
-  echo "~~ Operation canced"
+  gum spin --spinner minidot --title "Aborted." -- sleep 2
   exit
 fi
