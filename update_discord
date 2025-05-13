@@ -17,6 +17,7 @@ if command -v wget >/dev/null 2>&1; then
   printf "\n   [✓] SUCCESS => Already installed.\n"
 else
   printf "\n   [✕] ERROR => Please install 'wget' to proceed.\n"
+  exit 1
 fi
 
 printf "   [Dependency] => Gum..."
@@ -31,6 +32,7 @@ else
     printf "\n    [✓] SUCCESS"
   else
     printf "    [✕] ERROR => %s is missing. Can't install dependency. Aborting...\n" "$gum_package"
+    exit 1
   fi
 fi
 printf "  [✓] SUCCESS => All dependencies are installed.\n"
