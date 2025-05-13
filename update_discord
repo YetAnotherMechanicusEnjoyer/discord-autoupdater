@@ -37,98 +37,103 @@ else
 fi
 printf "\e[92m[✓] SUCCESS => All dependencies are installed.\n\n"
 
-format=$(gum choose "tar.gz" "deb" "uninstall" "quit")
+action=$(gum choose "install/update" "uninstall" "quit")
+echo -e "\e[1m\e[95m> $action\n"
 
-echo -e "\e[1m\e[95m> $format\n"
-if [[ $format == "tar.gz" ]]; then
-  TMPDIR=$(mktemp -d)
-  cd "$TMPDIR"
+if [[ $action == "install/update" ]]; then
+  format=$(gum choose "tar.gz" "deb")
+  echo -e "\e[1m\e[95m> $format\n"
 
-  printf '\e[95m[Downloading] => Discord latest version :\n\e[96m [Platform] => Linux\n [Format] => tar.gz\n'
+  if [[ $format == "tar.gz" ]]; then
+    TMPDIR=$(mktemp -d)
+    cd "$TMPDIR"
 
-  downloadURL="https://discord.com/api/download?platform=linux&format=tar.gz"
-  updatePath="discord.tar.gz"
+    printf '\e[95m[Downloading] => Discord latest version :\n\e[96m [Platform] => Linux\n [Format] => tar.gz\n'
 
-  wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
+    downloadURL="https://discord.com/api/download?platform=linux&format=tar.gz"
+    updatePath="discord.tar.gz"
 
-  echo -e "\e[92m[✓] SUCCESS => Discord downloaded.\e[0m"
-  if [ -f "$updatePath" ]; then
-    installPath="/opt/discord"
+    wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
 
-    if [ -d "$installPath" ]; then
-      echo -e "\e[1m\e[91m[Deleting] => Old $installPath\e[0m"
-      if ! sudo rm -rf "$installPath"; then
+    echo -e "\e[92m[✓] SUCCESS => Discord downloaded.\e[0m"
+    if [ -f "$updatePath" ]; then
+      installPath="/opt/discord"
+
+      if [ -d "$installPath" ]; then
+        echo -e "\e[1m\e[91m[Deleting] => Old $installPath\e[0m"
+        if ! sudo rm -rf "$installPath"; then
+          cd - >/dev/null
+          rm -rf "$TMPDIR"
+          exit 1
+        fi
+      fi
+
+      if ! sudo mkdir -p "$installPath"; then
         cd - >/dev/null
         rm -rf "$TMPDIR"
         exit 1
       fi
-    fi
+      echo -e "\e[1m\e[95m[Extracting] $updatePath => $installPath\e[0m"
+      if ! sudo tar -xf "$updatePath" -C "$installPath" --strip-components=1; then
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        exit 1
+      fi
 
-    if ! sudo mkdir -p "$installPath"; then
-      cd - >/dev/null
-      rm -rf "$TMPDIR"
-      exit 1
-    fi
-    echo -e "\e[1m\e[95m[Extracting] $updatePath => $installPath\e[0m"
-    if ! sudo tar -xf "$updatePath" -C "$installPath" --strip-components=1; then
-      cd - >/dev/null
-      rm -rf "$TMPDIR"
-      exit 1
-    fi
-
-    echo -e "\e[1m\e[92m[✓] SUCCESS => $updatePath extracted into $installPath."
-  else
-    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api.\e[0m"
-    cd - >/dev/null
-    rm -rf "$TMPDIR"
-    gum spin --spinner minidot --title "Aborting..." -- sleep 2
-    exit 1
-  fi
-  cd - >/dev/null
-  rm -rf "$TMPDIR"
-  gum spin --spinner minidot --title "Discord is now updated !" -- sleep 3
-
-elif [[ $format == "deb" ]]; then
-  TMPDIR=$(mktemp -d)
-  cd "$TMPDIR"
-
-  printf '\e[95m[Downloading] => Discord latest version :\n \e[96m[Platform] => Linux\n [Format] => deb\n'
-
-  downloadURL="https://discord.com/api/download?platform=linux&format=deb"
-  updatePath="discord.deb"
-
-  wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
-
-  echo -e "\e[92m[✓] SUCCESS => Discord downloaded."
-  if [ -f "$updatePath" ]; then
-    echo -e "\e[95m[Installing] $updatePath package & its dependencies.\e[0m"
-
-    if command -v apt >/dev/null 2>&1; then
-      printf ""
+      echo -e "\e[1m\e[92m[✓] SUCCESS => $updatePath extracted into $installPath."
     else
-      echo -e "\e[1m\e[91m[✕] ERROR => 'apt' is not installed. Can't install with '.deb'.\e[0m"
+      echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api.\e[0m"
       cd - >/dev/null
       rm -rf "$TMPDIR"
       gum spin --spinner minidot --title "Aborting..." -- sleep 2
       exit 1
     fi
-
-    if ! sudo apt install "$updatePath"; then
-      cd - >/dev/null
-      rm -rf "$TMPDIR"
-      exit 1
-    fi
-    echo -e "\e[1m\e[92m[✓] SUCCESS => Disocrd package installed.\e[0m"
-  else
-    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api.\e[0m"
     cd - >/dev/null
     rm -rf "$TMPDIR"
-    gum spin --spinner minidot --title "Aborting..." -- sleep 2
-    exit 1
+    gum spin --spinner minidot --title "Discord is now updated !" -- sleep 3
+
+  elif [[ $format == "deb" ]]; then
+    TMPDIR=$(mktemp -d)
+    cd "$TMPDIR"
+
+    printf '\e[95m[Downloading] => Discord latest version :\n \e[96m[Platform] => Linux\n [Format] => deb\n'
+
+    downloadURL="https://discord.com/api/download?platform=linux&format=deb"
+    updatePath="discord.deb"
+
+    wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
+
+    echo -e "\e[92m[✓] SUCCESS => Discord downloaded."
+    if [ -f "$updatePath" ]; then
+      echo -e "\e[95m[Installing] $updatePath package & its dependencies.\e[0m"
+
+      if command -v apt >/dev/null 2>&1; then
+        printf ""
+      else
+        echo -e "\e[1m\e[91m[✕] ERROR => 'apt' is not installed. Can't install with '.deb'.\e[0m"
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        gum spin --spinner minidot --title "Aborting..." -- sleep 2
+        exit 1
+      fi
+
+      if ! sudo apt install "$updatePath"; then
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        exit 1
+      fi
+      echo -e "\e[1m\e[92m[✓] SUCCESS => Disocrd package installed.\e[0m"
+    else
+      echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api.\e[0m"
+      cd - >/dev/null
+      rm -rf "$TMPDIR"
+      gum spin --spinner minidot --title "Aborting..." -- sleep 2
+      exit 1
+    fi
+    cd - >/dev/null
+    rm -rf "$TMPDIR"
+    gum spin --spinner jump --title "Discord is now updated !" -- sleep 2
   fi
-  cd - >/dev/null
-  rm -rf "$TMPDIR"
-  gum spin --spinner jump --title "Discord is now updated !" -- sleep 2
 elif [[ $format == "uninstall" ]]; then
   gum confirm && (echo -e "\e[91m[Deleting] => /opt/discord\e[0m" && sudo rm -rf "/opt/discord") || gum spin --spinner dot --title "Aborting..." -- sleep 2
   gum spin --spinner jump --title "Discord is now uninstalled !" -- sleep 2
