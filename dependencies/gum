@@ -7,17 +7,26 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+ARCH=$(uname -m)
+case "$ARCH" in
+x86_64) ARCH="x86_64" ;;
+aarch64 | arm64) ARCH="arm64" ;;
+*)
+  exit 1
+  ;;
+esac
+
 TMPDIR=$(mktemp -d)
 cd "$TMPDIR"
 
-GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.16.0/gum-0.16.0.tar.gz"
+GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.16.0/gum_0.16.0_Linux_${ARCH}.tar.gz"
 INSTALL_PATH="gum.tar.gz"
 echo "   [Downloading] => Gum from github.com/charmbracelet/gum"
 curl -fSL# "$GUM_URL" -o "$INSTALL_PATH"
 echo "   [✓] SUCCESS"
 
 echo "   [Extracting] => $INSTALL_PATH"
-tar -xzf "$INSTALL_PATH" -C "/usr/local/bin/"
+tar -xzf "$INSTALL_PATH"
 chmod +x /usr/local/bin/gum
 echo "   [✓] SUCCESS"
 
