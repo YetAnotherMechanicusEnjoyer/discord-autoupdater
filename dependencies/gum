@@ -33,7 +33,6 @@ echo -e "\e[93m    [Extracting] => $INSTALL_PATH"
 tar -xzf "$INSTALL_PATH"
 mv "${FILE}/gum" "/usr/local/bin/"
 chmod +x "/usr/local/bin/gum"
-echo -e "\e[92m    [✓] SUCCESS => gum package extracted."
 
 cd - >/dev/null
 rm -rf "$TMPDIR"
