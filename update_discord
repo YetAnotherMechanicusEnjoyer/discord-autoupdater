@@ -12,11 +12,11 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo "  [Checking] => Dependencies :"
-printf "   [Dependency] => Wget..."
+printf "    [Dependency] => Wget..."
 if command -v wget >/dev/null 2>&1; then
-  printf "\n   [✓] SUCCESS => Already installed.\n"
+  printf "\n    [✓] SUCCESS => Already installed.\n"
 else
-  printf "\n   [✕] ERROR => Please install 'wget' to proceed.\n"
+  printf "\n    [✕] ERROR => Please install 'wget' to proceed.\n"
   exit 1
 fi
 
@@ -24,14 +24,14 @@ printf "   [Dependency] => Gum..."
 gum_package="./dependencies/gum"
 
 if command -v gum >/dev/null 2>&1; then
-  printf "\n   [✓] SUCCESS => Already installed.\n"
+  printf "\n    [✓] SUCCESS => Already installed.\n"
 else
-  printf "\n    [Installling] => Gum package\n"
+  printf "\n     [Installling] => Gum package\n"
   if [ -f "$gum_package" ]; then
     sh $gum_package
-    printf "\n    [✓] SUCCESS"
+    printf "\n     [✓] SUCCESS"
   else
-    printf "    [✕] ERROR => %s is missing. Can't install dependency. Aborting...\n" "$gum_package"
+    printf "     [✕] ERROR => %s is missing. Can't install dependency. Aborting...\n" "$gum_package"
     exit 1
   fi
 fi
