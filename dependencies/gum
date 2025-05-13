@@ -19,15 +19,17 @@ esac
 TMPDIR=$(mktemp -d)
 cd "$TMPDIR"
 
-GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.16.0/gum_0.16.0_Linux_${ARCH}.tar.gz"
+FILE="gum_0.16.0_Linux_${ARCH}"
+GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.16.0/${FILE}.tar.gz"
 INSTALL_PATH="gum.tar.gz"
 echo "   [Downloading] => Gum from github.com/charmbracelet/gum"
-curl -fSL# "$GUM_URL" -o "$INSTALL_PATH"
+wget -t 5 -q -O "$INSTALL_PATH" --show-progress "$GUM_URL"
 echo "   [✓] SUCCESS"
 
 echo "   [Extracting] => $INSTALL_PATH"
 tar -xzf "$INSTALL_PATH"
-chmod +x /usr/local/bin/gum
+mv "${FILE}/gum" "/usr/local/bin/"
+chmod +x "/usr/local/bin/gum"
 echo "   [✓] SUCCESS"
 
 cd -
