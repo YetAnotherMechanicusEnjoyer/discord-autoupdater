@@ -17,7 +17,7 @@ curl -fSL# "$GUM_URL" -o "$INSTALL_PATH"
 echo "   [✓] SUCCESS"
 
 echo "   [Extracting] => $INSTALL_PATH"
-tar -xzf "$INSTALL_PATH" -C "/usr/local/bin/gum"
+tar -xzf "$INSTALL_PATH" -C "/usr/local/bin/"
 chmod +x /usr/local/bin/gum
 echo "   [✓] SUCCESS"
 
