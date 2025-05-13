@@ -12,6 +12,13 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo "  [Checking] => Dependencies :"
+printf "   [Dependency] => Wget..."
+if command -v wget >/dev/null 2>&1; then
+  printf "\n   [✓] SUCCESS => Already installed.\n"
+else
+  printf "\n   [✕] ERROR => Please install 'wget' to proceed.\n"
+fi
+
 printf "   [Dependency] => Gum..."
 gum_package="./dependencies/gum"
 
