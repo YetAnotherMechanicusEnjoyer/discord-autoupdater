@@ -24,7 +24,11 @@ if command -v gum >/dev/null 2>&1; then
 else
   printf "\n\e[95m   [Installling] => Gum package\n"
   if [ -f "$gum_package" ]; then
-    sudo sh $gum_package
+    if ! sudo sh $gum_package; then
+      cd - >/dev/null
+      rm -rf "$TMPDIR"
+      exit 1
+    fi
     printf "\e[92m   [✓] SUCCESS => Gum package installed.\n"
   else
     echo -e "\e[91m   [✕] ERROR => $gum_package is missing. Can't install dependency."
@@ -47,23 +51,35 @@ if [[ $format == "tar.gz" ]]; then
 
   wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
 
-  echo -e "\e[92m[✓] SUCCESS => Discord downloaded."
+  echo -e "\e[92m[✓] SUCCESS => Discord downloaded.\e[0m"
   if [ -f "$updatePath" ]; then
     installPath="/opt/discord"
 
     if [ -d "$installPath" ]; then
-      echo -e "\e[91m[Deleting] => Old $installPath"
-      sudo rm -rf "$installPath"
+      echo -e "\e[1m\e[91m[Deleting] => Old $installPath\e[0m"
+      if ! sudo rm -rf "$installPath"; then
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        exit 1
+      fi
     fi
 
-    sudo mkdir -p "$installPath"
-    echo -e "\e[95m[Extracting] $updatePath => $installPath"
-    sudo tar -xf "$updatePath" -C "$installPath" --strip-components=1
+    if ! sudo mkdir -p "$installPath"; then
+      cd - >/dev/null
+      rm -rf "$TMPDIR"
+      exit 1
+    fi
+    echo -e "\e[1m\e[95m[Extracting] $updatePath => $installPath\e[0m"
+    if ! sudo tar -xf "$updatePath" -C "$installPath" --strip-components=1; then
+      cd - >/dev/null
+      rm -rf "$TMPDIR"
+      exit 1
+    fi
 
-    echo -e "\e[92m[✓] SUCCESS => $updatePath extracted into $installPath."
+    echo -e "\e[1m\e[92m[✓] SUCCESS => $updatePath extracted into $installPath."
   else
-    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api."
-    cd -
+    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api.\e[0m"
+    cd - >/dev/null
     rm -rf "$TMPDIR"
     gum spin --spinner minidot --title "Aborting..." -- sleep 2
     exit 1
@@ -71,7 +87,11 @@ if [[ $format == "tar.gz" ]]; then
   cd - >/dev/null
   rm -rf "$TMPDIR"
   gum spin --spinner minidot --title "Discord is now updated !" -- sleep 3
+
 elif [[ $format == "deb" ]]; then
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR"
+
   printf '\e[95m[Downloading] => Discord latest version :\n \e[96m[Platform] => Linux\n [Format] => deb\n'
 
   downloadURL="https://discord.com/api/download?platform=linux&format=deb"
@@ -81,22 +101,26 @@ elif [[ $format == "deb" ]]; then
 
   echo -e "\e[92m[✓] SUCCESS => Discord downloaded."
   if [ -f "$updatePath" ]; then
-    echo -e "\e[95m[Installing] $updatePath package & its dependencies."
+    echo -e "\e[95m[Installing] $updatePath package & its dependencies.\e[0m"
 
     if command -v apt >/dev/null 2>&1; then
       printf ""
     else
-      echo -e "\e[1m\e[91m[✕] ERROR => 'apt' is not installed. Can't install with '.deb'."
+      echo -e "\e[1m\e[91m[✕] ERROR => 'apt' is not installed. Can't install with '.deb'.\e[0m"
       cd - >/dev/null
       rm -rf "$TMPDIR"
       gum spin --spinner minidot --title "Aborting..." -- sleep 2
       exit 1
     fi
 
-    sudo apt install "$updatePath"
-    echo -e "\e[92m[✓] SUCCESS => Disocrd package installed."
+    if ! sudo apt install "$updatePath"; then
+      cd - >/dev/null
+      rm -rf "$TMPDIR"
+      exit 1
+    fi
+    echo -e "\e[1m\e[92m[✓] SUCCESS => Disocrd package installed.\e[0m"
   else
-    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api."
+    echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api.\e[0m"
     cd - >/dev/null
     rm -rf "$TMPDIR"
     gum spin --spinner minidot --title "Aborting..." -- sleep 2
@@ -106,10 +130,10 @@ elif [[ $format == "deb" ]]; then
   rm -rf "$TMPDIR"
   gum spin --spinner jump --title "Discord is now updated !" -- sleep 2
 elif [[ $format == "uninstall" ]]; then
-  gum confirm && (echo -e "\e[91m[Deleting] => /opt/discord" && sudo rm -rf "/opt/discord") || gum spin --spinner dot --title "Aborting..." -- sleep 2
+  gum confirm && (echo -e "\e[91m[Deleting] => /opt/discord\e[0m" && sudo rm -rf "/opt/discord") || gum spin --spinner dot --title "Aborting..." -- sleep 2
   gum spin --spinner jump --title "Discord is now uninstalled !" -- sleep 2
   exit
 else
-  gum spin --spinner minidot --title "Aborted." -- sleep 2
+  gum spin --spinner minidot --title "Aborted." -- sleep 1
   exit
 fi
