@@ -4,7 +4,7 @@
 set -e
 
 if [ "$EUID" -ne 0 ]; then
-  echo -e "\e[1m\e[91m   [✕] ERROR => Script must be run as root."
+  echo -e "\e[1m\e[91m    [✕] ERROR => Script must be run as root."
   exit 1
 fi
 
@@ -25,15 +25,15 @@ FILE="gum_0.16.0_Linux_${ARCH}"
 # gum package by charmbracelet
 GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.16.0/${FILE}.tar.gz"
 INSTALL_PATH="gum.tar.gz"
-echo -e "\e[95m   [Downloading] => Gum from github.com/charmbracelet/gum"
+echo -e "\e[93m    [Downloading] => Gum from github.com/charmbracelet/gum"
 wget -t 5 -q -O "$INSTALL_PATH" --show-progress "$GUM_URL"
-echo -e "\e[92m   [✓] SUCCESS => $INSTALL_PATH downloaded."
+echo -e "\e[92m    [✓] SUCCESS => $INSTALL_PATH downloaded."
 
-echo -e "\e[95m   [Extracting] => $INSTALL_PATH"
+echo -e "\e[93m    [Extracting] => $INSTALL_PATH"
 tar -xzf "$INSTALL_PATH"
 mv "${FILE}/gum" "/usr/local/bin/"
 chmod +x "/usr/local/bin/gum"
-echo -e "\e[92m   [✓] SUCCESS => gum package extracted."
+echo -e "\e[92m    [✓] SUCCESS => gum package extracted."
 
 cd - >/dev/null
 rm -rf "$TMPDIR"

@@ -25,7 +25,7 @@ else
   printf "\n\e[95m   [Installling] => Gum package\n"
   if [ -f "$gum_package" ]; then
     sudo sh $gum_package
-    printf "\n\e[92m   [✓] SUCCESS => Gum package installed.\n"
+    printf "\e[92m   [✓] SUCCESS => Gum package installed.\n"
   else
     echo -e "\e[91m   [✕] ERROR => $gum_package is missing. Can't install dependency."
     exit 1
