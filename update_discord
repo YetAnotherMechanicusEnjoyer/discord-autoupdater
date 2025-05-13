@@ -1,0 +1,77 @@
+#!/bin/bash
+# github.com/YetAnotherMechanicusEnjoyer
+
+set -e
+
+printf '\n''    ____  _                          __   __  __          __      __     \n''   / __ \(_)_____________  _________/ /  / / / /___  ____/ /___ _/ /____ \n''  / / / / / ___/ ___/ __ \/ ___/ __  /  / / / / __ \/ __  / __ `/ __/ _ \ \n'' / /_/ / (__  ) /__/ /_/ / /  / /_/ /  / /_/ / /_/ / /_/ / /_/ / /_/  __/\n''/_____/_/____/\___/\____/_/   \__,_/   \____/ .___/\__,_/\__,_/\__/\___/ \n''                                           /_/                           \n'
+printf "by YetAnotherMechanicusEnjoyer\n\n"
+
+if [ "$EUID" -ne 0 ]; then
+  echo "  [✕] ERROR => Script must be run as root."
+  exit 1
+fi
+
+echo "  [Checking] => Dependencies :"
+printf "   [Dependency] => Gum..."
+gum_package="./dependencies/gum"
+
+if command -v gum >/dev/null 2>&1; then
+  printf "\n   [✓] SUCCESS => Already installed.\n"
+else
+  printf "\n    [Installling] => Gum package\n"
+  if [ -f "$gum_package" ]; then
+    sh $gum_package
+    printf "\n    [✓] SUCCESS"
+  else
+    printf "    [✕] ERROR => %s is missing. Can't install dependency. Aborting...\n" "$gum_package"
+  fi
+fi
+printf "  [✓] SUCCESS => All dependencies are installed.\n"
+
+printf "~~ Please select a format\n\n"
+format=$(gum choose "tar.gz" "deb" "Exit")
+
+if [[ $format == "tar.gz" ]]; then
+  printf '  [Downloading] => Discord latest version :\n   [Platform] => Linux\n   [Format] => tar.gz\n'
+
+  downloadURL="https://discord.com/api/download?platform=linux&format=tar.gz"
+  updatePath="/tmp/discord.tar.gz"
+
+  wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
+
+  if [ -f "$updatePath" ]; then
+    installPath="/opt/discord"
+
+    if [ -f "$installPath" ]; then
+      rm -rf "$installPath"
+    fi
+
+    echo "  [Extracting] $updatePath => $installPath"
+    tar -xf "$updatePath" -C "$installPath" --strip-components=1
+
+    echo "  [✓] SUCCESS"
+  else
+    echo "  [✕] ERROR => Couldn't download Discord."
+    exit 1
+  fi
+elif [[ $format == "deb" ]]; then
+  printf '  [Downloading] => Discord latest version :\n   [Platform] => Linux\n   [Format] => deb\n'
+
+  downloadURL="https://discord.com/api/download?platform=linux&format=deb"
+  updatePath="/tmp/discord.deb"
+
+  wget -t 5 -q -O "$updatePath" --show-progress "$downloadURL"
+
+  if [ -f "$updatePath" ]; then
+    echo "  [Installing] $updatePath package & its dependencies."
+    apt install "$updatePath"
+    echo "  [✓] SUCCESS"
+  else
+    echo "  [✕] ERROR => Couldn't download Discord from api."
+    exit 1
+  fi
+  gum spin --spinner dot --title "Discord is now updated !" -- sleep 3
+else
+  echo "~~ Operation canced"
+  exit
+fi

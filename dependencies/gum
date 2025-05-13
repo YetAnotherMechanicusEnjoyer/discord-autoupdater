@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+if [ "$EUID" -ne 0 ]; then
+  echo "   [✕] ERROR => Script must be run as root."
+  exit 1
+fi
+
+TMPDIR=$(mktemp -d)
+cd "$TMPDIR"
+
+GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.16.0/gum-0.16.0.tar.gz"
+INSTALL_PATH="gum.tar.gz"
+echo "   [Downloading] => Gum from github.com/charmbracelet/gum"
+curl -fSL# "$GUM_URL" -o "$INSTALL_PATH"
+
+echo "   [Extracting] => $INSTALL_PATH"
+tar -xzf "$INSTALL_PATH"
+
+mv gum /usr/local/bin/
+chmod +x /usr/local/bin/gum
+
+cd -
+rm -rf "$TMPDIR"
