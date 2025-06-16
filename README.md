@@ -4,9 +4,9 @@
 ### Table of Content
 
 - [About](#about)
-  * [Launch](#launch)
-  * [Actions](#actions)
-  * [Formats](#formats)
+  - [Launch](#launch)
+  - [Actions](#actions)
+  - [Formats](#formats)
 - [Licence](#licence)
 
 ## About
@@ -19,11 +19,12 @@
 ```bash
 ./update_discord  # Told you it was simple..
 ```
+
 > [!NOTE]
 > Dependencies will be installed once the script is executed.
 
-
 ### Actions
+
 <img src="https://i.ibb.co/yFmy72fv/image.png" alt="actions" border="0" />
 
 ### Formats
@@ -34,4 +35,5 @@
 <img src="https://i.ibb.co/0Vjn0LMm/image.png" alt="formats" border="0" />
 
 ## Licence
+
 [MIT](https://github.com/YetAnotherMechanicusEnjoyer/discord-autoupdater/blob/8c97f31492c9efe79b3fad427b2331290d1332c3/LICENSE)
