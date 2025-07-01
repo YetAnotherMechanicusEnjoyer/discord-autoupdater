@@ -58,30 +58,52 @@ if [[ $action == "install/update" ]]; then
 
     echo -e "\e[92m[✓] SUCCESS => Discord downloaded.\e[0m"
     if [ -f "$updatePath" ]; then
-      installPath="/opt/discord"
+      installPathOpt="/opt/discord"
+      installPathUsr="/usr/share/discord"
 
-      if [ -d "$installPath" ]; then
-        echo -e "\e[1m\e[91m[Deleting] => Old $installPath\e[0m"
-        if ! sudo rm -rf "$installPath"; then
+      if [ -d "$installPathOpt" ]; then
+        echo -e "\e[1m\e[91m[Deleting] => Old $installPathOpt\e[0m"
+        if ! sudo rm -rf "$installPathOpt"; then
           cd - >/dev/null
           rm -rf "$TMPDIR"
           exit 1
         fi
       fi
 
-      if ! sudo mkdir -p "$installPath"; then
-        cd - >/dev/null
-        rm -rf "$TMPDIR"
-        exit 1
-      fi
-      echo -e "\e[1m\e[95m[Extracting] $updatePath => $installPath\e[0m"
-      if ! sudo tar -xf "$updatePath" -C "$installPath" --strip-components=1; then
-        cd - >/dev/null
-        rm -rf "$TMPDIR"
-        exit 1
+      if [ -d "$installPathUsr" ]; then
+        echo -e "\e[1m\e[91m[Deleting] => Old $installPathUsr\e[0m"
+        if ! sudo rm -rf "$installPathUsr"; then
+          cd - >/dev/null
+          rm -rf "$TMPDIR"
+          exit 1
+        fi
       fi
 
-      echo -e "\e[1m\e[92m[✓] SUCCESS => $updatePath extracted into $installPath."
+      if ! sudo mkdir -p "$installPathOpt"; then
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        exit 1
+      fi
+      if ! sudo mkdir -p "$installPathUsr"; then
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        exit 1
+      fi
+      echo -e "\e[1m\e[95m[Extracting] $updatePath => $installPathOpt\e[0m"
+      if ! sudo tar -xf "$updatePath" -C "$installPathOpt" --strip-components=1; then
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        exit 1
+      fi
+      echo -e "\e[1m\e[92m[✓] SUCCESS => $updatePath extracted into $installPathOpt."
+
+      echo -e "\e[1m\e[95m[Cloning] $installPathOpt => $installPathUsr\e[0m"
+      if ! sudo cp -r "$installPathOpt"/* "$installPathUsr"; then
+        cd - >/dev/null
+        rm -rf "$TMPDIR"
+        exit 1
+      fi
+      echo -e "\e[1m\e[92m[✓] SUCCESS => $installPathOpt cloned into $installPathUsr."
     else
       echo -e "\e[1m\e[91m[✕] ERROR => Couldn't download Discord from api.\e[0m"
       cd - >/dev/null
