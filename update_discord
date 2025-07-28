@@ -4,7 +4,11 @@
 set -e
 
 printf '\n\e[94m\e[1m'
-figlet -f slant "Discord Update"
+if command -v figlet >/dev/null 2>&1; then
+  figlet -f slant "Discord Update"
+else
+  echo "DISCORD UPDATE"
+fi
 printf "\e[90mby \e[92m\e[4mYetAnotherMechanicusEnjoyer\n\n\e[0m\e[1m"
 
 echo -e "\e[95m[Checking] => Dependencies :"
