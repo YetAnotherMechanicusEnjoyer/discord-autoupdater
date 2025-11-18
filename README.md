@@ -1,5 +1,5 @@
 <p align="center"> <img src="https://i.ibb.co/pBVq2JvM/image.png" alt="discord updater" border="0" /> </p>
-<h1 align="center"> A simple bash script to update Discord on any Linux distro </h1>
+<h1 align="center"> A modest bash script to update Discord on any Linux distro </h1>
 
 ### Table of Content
 
